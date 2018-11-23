@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+
+<style>
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+.btn {
+	float: left;
+	width: 100%;
+	height: 25vh;
+	padding-top: 30px;
+	text-align: center;
+}
+
+.btn:nth-child(1) {
+	background: #456;
+}
+.btn:nth-child(2) {
+	background: #678;
+}
+.btn:nth-child(3) {
+	background: #89a;
+}
+.btn:nth-child(4) {
+	background: #abc;
+}
+
+h1 {
+	text-align: center;
+	width: 100%;
+	font-size: 20px;
+	font-family: arial;
+	background: #efefef;
+	margin: 0;
+	padding: 0;
+}
+
+</style>
+
+</head>
+<body>
+<div class='cont'>
+<div class='btn'>-_-___</div>
+<div class='btn'>______</div>
+<div class='btn'>------</div>
+<div class='btn'>---___</div>
+<h1>Mattias &lt;3 Stephanie, 1st year</h1>
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<script>
+
+$(function() {
+	$('.btn').each(function(i, div) {
+		$(div).click(function(a) {
+			$.post('/heart', { command: i }, function(a) {
+				console.log(a);
+			});
+		});
+	});
+});
+
+</script>
+
+</body>
+</html>

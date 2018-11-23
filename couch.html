@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<style>
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+input {
+	width: 100%;
+}
+</style>
+
+</head>
+<body>
+<form method=post>
+<h1>rgb</h1>
+<div class='colorwheel'>
+</div>
+<div class='info'></div>
+<div>
+<input name="r" type="hidden" min="0" max="255" value="0">
+<input name="g" type="hidden" min="0" max="255" value="0">
+<input name="b" type="hidden" min="0" max="255" value="0">
+</div>
+mode: <input name="mode" value="h">
+speed: <input name="rotate_speed" value="70">
+<input type="submit">
+</form>
+
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+
+<script>
+
+function sq(a) { return a*a; }
+function clamp(v, min,max) { return v<min?0:v>max?max:v; }
+
+function initColorWheel() {
+	var $e = $('.colorwheel');
+	var width = $(window).width();
+	$e.width(width);
+	$e.height(width);
+	$e.css('background', '#444');
+
+	var color = {r:255,g:255,b:255};
+
+	var pinchOrig;
+	var pinchMod = 1, pinchNew;
+	$e.on('touchstart', function(e) {
+		$e.on('touchmove', move);
+
+		var colorAtStart = color;
+
+//		pinchMod = 1;
+		pinchNew = 1;
+		if (e.originalEvent.targetTouches.length>1) {
+			var touches = e.originalEvent.targetTouches;
+			$e.off('touchmove', move);
+			$e.on('touchmove', pinch);
+			pinchOrig = Math.sqrt(sq(touches[0].pageX-touches[1].pageX) + sq(touches[0].pageY-touches[1].pageY));
+		}
+	});
+	$e.on('touchend', function(e) {
+		$e.off('touchmove', move);
+		$e.off('touchmove', pinch);
+
+		pinchMod = clamp(pinchMod*pinchNew,0,1);
+		pinchNew = 1;
+		var r = parseInt(clamp(color.r*pinchMod, 0, 255));
+		var g = parseInt(clamp(color.g*pinchMod, 0, 255));
+		var b = parseInt(clamp(color.b*pinchMod, 0, 255));
+
+		console.log(pinchMod);
+
+		var col = 'rgb(' + [r,g,b].join(',') + ')';
+		$e.css('background', col);
+
+		$('input[name=r]').val(r);
+		$('input[name=g]').val(g);
+		$('input[name=b]').val(b);
+		$('form').submit();
+	});
+
+	function pinch(e) {
+		e.preventDefault();
+		var touches = e.originalEvent.targetTouches;
+
+		var pinch = Math.sqrt(sq(touches[0].pageX-touches[1].pageX) + sq(touches[0].pageY-touches[1].pageY));
+
+		var dx = pinch/pinchOrig;
+
+		pinchNew = dx;
+		dx = clamp(pinchMod*dx,0,1);
+
+		var r = parseInt(clamp(color.r*dx, 0, 255));
+		var g = parseInt(clamp(color.g*dx, 0, 255));
+		var b = parseInt(clamp(color.b*dx, 0, 255));
+
+		var col = 'rgb(' + [r,g,b].join(',') + ')';
+		$e.css('background', col);
+
+//		console.log(pinchNew, pinchMod);
+	}
+
+	function move(e) {
+		e.preventDefault();
+		var touch = e.originalEvent.changedTouches[0];
+//		pinchMod = 1;
+
+		var offsetY = $e.offset().top;
+		
+		var x = touch.clientX,
+		  y = touch.pageY-offsetY;
+
+		var cx = width/2, cy = width/2;
+		var cr = cx;
+
+		var dist = Math.sqrt((x-cx)*(x-cx) + (y-cy)*(y-cy));
+		var angle = Math.atan2(y-cy,x-cx);
+		if (angle < 0) angle += Math.PI*2;
+
+		angle = angle*180/Math.PI;
+
+		var rx = width, ry = width/2;
+		var gx = cx+cr*Math.cos(120*Math.PI/180), gy = cy+cr*Math.sin(120*Math.PI/180);
+		var bx = cx+cr*Math.cos(240*Math.PI/180), by = cy+cr*Math.sin(240*Math.PI/180);
+
+		var ccr = cr*Math.sqrt(3)/2;
+		var r = clamp((2*ccr-Math.sqrt((x-rx)*(x-rx)+(y-ry)*(y-ry)))/ccr,0,1);
+		var g = clamp((2*ccr-Math.sqrt((x-gx)*(x-gx)+(y-gy)*(y-gy)))/ccr,0,1);
+		var b = clamp((2*ccr-Math.sqrt((x-bx)*(x-bx)+(y-by)*(y-by)))/ccr,0,1);
+
+		color.r = parseInt(r*255); color.g = parseInt(g*255); color.b = parseInt(b*255);
+
+		r = parseInt(color.r*pinchMod);
+		g = parseInt(color.g*pinchMod);
+		b = parseInt(color.b*pinchMod);
+
+		var col = 'rgb(' + [r, g, b].join(',') + ')';
+		$e.css('background', col);
+	}
+}
+
+$(function() {
+	initColorWheel();
+
+	$('input[type=range]').change(sendData);
+	$('form').submit(function(e) {
+		e.preventDefault();
+
+		sendData();
+	});
+	function sendData() {
+		var data = {
+			r: +$('input[name=r]').val() || 0,
+			g: +$('input[name=g]').val() || 0,
+			b: +$('input[name=b]').val() || 0,
+			mode: $('input[name=mode]').val() || 'h',
+			rotate_speed: $('input[name=rotate_speed]').val() || 1000,
+		};
+
+		data.r = parseInt(255*Math.pow(data.r/255,2.2));
+		data.g = parseInt(255*Math.pow(data.g/255,2.2));
+		data.b = parseInt(255*Math.pow(data.b/255,2.2));
+
+		console.log(data);
+
+		$.post('/couch', data, function(d) {console.log('sent', d);});
+	}
+});
+
+</script>
+
+</body>
+</html>
