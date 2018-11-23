@@ -1,67 +1,65 @@
-var serialport = require("serialport");
-var dateformat = require("dateformat");
-var api = require('./api.js');
-var mqtt = require('mqtt')
-require('dotenv').config()
+const serialport = require("serialport");
+const api = require('./api.js');
+const mqtt = require('mqtt');
+require('dotenv').config();
 
-const client = mqtt.connect(process.env.MQTT_HOST, { username: process.env.MQTT_USERNAME, password: process.env.MQTT_PASSWORD })
+const client = mqtt.connect(process.env.MQTT_HOST, { username: process.env.MQTT_USERNAME, password: process.env.MQTT_PASSWORD });
 
 client.on('connect', function () {
-  console.log('connected to mqtt!', client.connected)
-})
+  console.log('connected to mqtt!', client.connected);
+});
 
 var initialized = false;
 
 var sp = new serialport.SerialPort("/dev/ttyUSB0", {
-  baudrate: 9600,
+  baudrate: 115200,
   parser: serialport.parsers.readline("\n")
 });
 
-api.start(sp,3000);
+const sensors = {
+  1: {
+    type: 'temperature',
+    parse(parts) {
+      return {
+        temp: (parts[3] * 256 + parts[4]) / 100,
+        type: 'temp'
+      };
+    }
+  }
+}
+
+// api.start(sp,3000);
 
 sp.on("open", function () {
   sp.on('data', function(data) {
 
-    if (data.indexOf("Hello")==0) {
-      initialized = true;
+    console.log('Line: ', data);
+
+    if (data.indexOf('Data ') !== 0) return;
+
+    const parts = data.substr(5).split(', ').map(x => +x);
+
+    const id = parts[0];
+    const type = parts[1];
+    const voltage = parts[2];
+
+    if (!sensors[type]) {
+      console.error('Unknown sensor type ', type);
       return;
     }
 
-    if (!initialized) return;
-
-    var parts = data.split(" ");
-    var temp = +parts[1];
-    var sensor_id = +parts[2];
-    var voltage = +parts[3];
-
-    var now = dateformat(new Date(), "yyyy-mm-dd HH:MM:ss");
-    console.log(now + "\t" + temp + "\t" + sensor_id + "\t" + voltage);
+    const parsed = sensors[type].parse(parts);
 
     if (client.connected) {
-      client.publish(`home/nrf24l01/${sensor_id}`, JSON.stringify({
-        sensorId: sensor_id,
-        temp,
+      const sensorData = {
+        sensorId: id,
+        type,
         voltage,
-        datestring: now
-      }))
+	timestamp: Date.now(),
+        ...parsed
+      }
+      console.log('sensor', JSON.stringify(sensorData, null, 2));
+//      client.publish(`home/nrf24l01/${id}`, JSON.stringify(sensorData));
     }
   });
 });
-
-process.stdin.setEncoding('utf8');
-
-process.stdin.on('readable', function() {
-  var chunk = process.stdin.read();
-  if (chunk !== null) {
-    sp.write(chunk.substr(0,1), function(err, results) {
-      if (err) { // error
-        console.log('serial write err ' + err);
-      }
-    });
-  }
-});
-
-process.stdin.on('end', function() {
-  process.stdout.write('end');
-});
-
