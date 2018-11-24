@@ -28,7 +28,7 @@ const sensors = {
   }
 }
 
-// api.start(sp,3000);
+api.start(sp,3000);
 
 sp.on("open", function () {
   sp.on('data', function(data) {
