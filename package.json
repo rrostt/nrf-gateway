@@ -12,11 +12,12 @@
   },
   "devDependencies": {
     "eslint": "^5.9.0",
+    "jest": "^23.6.0",
     "prettier": "^1.15.2"
   },
   "scripts": {
     "start": "node lib/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest test/",
     "format": "prettier --write '**/*.js'"
   },
   "author": "",

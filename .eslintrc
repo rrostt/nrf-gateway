@@ -11,6 +11,11 @@
     "node": true
   },
   "globals":{
-    "Uint8Array": true
+    "Uint8Array": true,
+    "jest": true,
+    "describe": true,
+    "expect": true,
+    "beforeEach": true,
+    "test": true
   }
 }
