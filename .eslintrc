@@ -1,0 +1,21 @@
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "rules": {
+      "semi": [1, "never"],
+      "no-console": [0]
+  },
+  "env":{
+    "node": true
+  },
+  "globals":{
+    "Uint8Array": true,
+    "jest": true,
+    "describe": true,
+    "expect": true,
+    "beforeEach": true,
+    "test": true
+  }
+}
