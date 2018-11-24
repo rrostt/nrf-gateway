@@ -10,10 +10,14 @@
     "mqtt": "^2.18.8",
     "serialport": "^4.0.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "prettier": "^1.15.2"
+  },
   "scripts": {
     "start": "node lib/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write '**/*.js'"
   },
   "author": "",
   "license": "ISC"
