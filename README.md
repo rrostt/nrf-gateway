@@ -22,6 +22,7 @@ Create .env with
 | Type ID | Type | Description |
 | ------- | ---- | ----------- |
 | 1 | Temperature | Temperature sensor |
+| 2 | Door sensor | Door sensor |
 
 ### Temperature
 
@@ -33,3 +34,12 @@ A sensor broadcasting the temperature in Celcius.
 | 1 | type id |
 | 2 | battery (0 - 254 as percentage and 255 for no battery) |
 | 3-4 | MSB value of temp * 100. (temp = (data[3]*256 + data[4]) / 100) |
+
+### Door
+
+| byte | desc |
+| - | - |
+| 0 | sensor id |
+| 1 | type id |
+| 2 | battery (0 - 254 as percentage and 255 for no battery) |
+| 3 | 1 if open and 0 if closed |
