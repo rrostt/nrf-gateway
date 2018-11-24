@@ -102,4 +102,9 @@ describe('data route', () => {
     data(req, res)
     expect(res.status.mock.calls[0][0]).toBe(500)
   })
+
+  test('writes 37 bytes to serial', () => {
+    data(req, res)
+    expect(req.context.serialport.write.mock.calls[0][0].length).toBe(37)
+  })
 })
