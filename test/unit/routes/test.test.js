@@ -19,7 +19,7 @@ describe('test route', () => {
   })
 
   test('works', () => {
-    route(req,res)
+    route(req, res)
     expect(req.context.serialport.write.mock.calls.length).toBe(1)
   })
 })
