@@ -10,11 +10,12 @@ Forwards data to mqtt server.
 
 Create .env with
 
-| ENV VAR | Description |
-| - | - |
-| MQTT_HOST | mqtt hostname (e.g. mqtt://localhost) |
-| MQTT_USERNAME | mqtt username |
-| MQTT_PASSWORD | mqtt password |
+| ENV VAR | Default | Description |
+| - | - | - |
+| MQTT_HOST | - | mqtt hostname (e.g. mqtt://localhost) |
+| MQTT_USERNAME | - | mqtt username |
+| MQTT_PASSWORD | - | mqtt password |
+| DEVICE | /dev/ttyUSB0 | Device as found on host |
 
 
 ## Sensors
